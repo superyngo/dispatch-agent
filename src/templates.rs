@@ -33,8 +33,8 @@ fn resolve_templates_path() -> anyhow::Result<std::path::PathBuf> {
             }
         }
     }
-    let dev_path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("config/cli-templates.toml");
+    let dev_path =
+        std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("config/cli-templates.toml");
     if dev_path.exists() {
         return Ok(dev_path);
     }

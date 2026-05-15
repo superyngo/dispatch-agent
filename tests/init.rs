@@ -23,7 +23,7 @@ fn canonical_init() {
 
     let stdin = child.stdin.as_mut().unwrap();
     stdin.write_all(input.as_bytes()).unwrap();
-    drop(stdin);
+    let _ = stdin;
 
     let out = child.wait_with_output().unwrap();
     assert!(
@@ -74,7 +74,7 @@ fn invalid_json() {
         .expect("failed to spawn init");
     let stdin = child.stdin.as_mut().unwrap();
     stdin.write_all(b"{bad json}").unwrap();
-    drop(stdin);
+    let _ = stdin;
     let out = child.wait_with_output().unwrap();
     assert!(
         !out.status.success(),
@@ -108,7 +108,7 @@ fn hint_in_stderr() {
 
     let stdin = child.stdin.as_mut().unwrap();
     stdin.write_all(input.as_bytes()).unwrap();
-    drop(stdin);
+    let _ = stdin;
 
     let out = child.wait_with_output().unwrap();
     assert!(out.status.success());

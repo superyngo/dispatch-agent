@@ -19,8 +19,7 @@ version_flag = "--version"
 
 fn write_fake_agent_config(dir: &TempDir) -> std::path::PathBuf {
     let path = dir.path().join("config.toml");
-    let content = format!(
-        r#"version = 1
+    let content = r#"version = 1
 
 [[tiers]]
 id = "primary"
@@ -30,8 +29,7 @@ id = "primary"
   cli = "fake-agent"
   model = "default"
   args = []
-"#
-    );
+"#.to_string();
     fs::write(&path, content).unwrap();
     path
 }

@@ -190,8 +190,8 @@ mod tests {
         };
         let res = cmd_config(&args, None);
         // Either Ok (if system has config) or Err containing 'no config file found'
-        if res.is_err() {
-            let msg = res.unwrap_err().to_string();
+        if let Err(e) = res {
+            let msg = e.to_string();
             assert!(msg.contains("no config file found"));
         }
     }
@@ -218,8 +218,8 @@ mod tests {
             action: Some("show".to_string()),
         };
         let res = cmd_config(&args, None);
-        if res.is_err() {
-            let msg = res.unwrap_err().to_string();
+        if let Err(e) = res {
+            let msg = e.to_string();
             assert!(msg.contains("no config file found"));
         }
     }
