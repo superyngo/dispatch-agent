@@ -96,26 +96,49 @@ fn find_first_existing(candidates: &[std::path::PathBuf]) -> Option<std::path::P
 
 #[allow(dead_code)]
 fn resolve_templates_path() -> anyhow::Result<std::path::PathBuf> {
+    let mut checked: Vec<std::path::PathBuf> = Vec::new();
+
     if let Ok(p) = env::var("DISPATCH_AGENT_TEMPLATES") {
         return Ok(std::path::PathBuf::from(p));
     }
+
     if let Ok(exe) = env::current_exe() {
         if let Some(exe_dir) = exe.parent() {
             let p = exe_dir.join("config/cli-templates.toml");
             if p.exists() {
                 return Ok(p);
             }
+            checked.push(p);
         }
     }
+
     let dev_path =
         std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("config/cli-templates.toml");
     if dev_path.exists() {
         return Ok(dev_path);
     }
-    Err(anyhow!(
-        "cli-templates.toml not found in <binary_dir>/config/ or <project>/config/; \
-         set DISPATCH_AGENT_TEMPLATES to override"
-    ))
+    checked.push(dev_path);
+
+    let platform = platform_fallback_candidates();
+    if let Some(hit) = find_first_existing(&platform) {
+        return Ok(hit);
+    }
+    checked.extend(platform);
+
+    Err(anyhow!("{}", format_not_found_error(&checked)))
+}
+
+#[allow(dead_code)]
+fn format_not_found_error(checked: &[std::path::PathBuf]) -> String {
+    let mut s = String::from(
+        "cli-templates.toml not found. Set DISPATCH_AGENT_TEMPLATES to override. Searched:\n",
+    );
+    for p in checked {
+        s.push_str("  ");
+        s.push_str(&p.display().to_string());
+        s.push('\n');
+    }
+    s
 }
 
 #[cfg(test)]
@@ -214,6 +237,46 @@ mod tests {
         let map = load_templates().unwrap();
         let keys: Vec<&String> = map.keys().collect();
         assert_eq!(keys, vec!["b", "a", "c"]);
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn resolve_templates_path_uses_unix_fallback() {
+        let _lock = ENV_MUTEX.lock().unwrap();
+        let dir = tempfile::tempdir().unwrap();
+        // Build $HOME/.wenget/apps/dispatch-agent/config/cli-templates.toml
+        let nested = dir
+            .path()
+            .join(".wenget/apps/dispatch-agent/config");
+        std::fs::create_dir_all(&nested).unwrap();
+        let target = nested.join("cli-templates.toml");
+        std::fs::write(&target, "[cli]\nprompt_flag = \"-p\"\n").unwrap();
+
+        let _h = EnvGuard::set("HOME", dir.path().to_str().unwrap());
+        // Ensure earlier links in the chain miss:
+        env::remove_var("DISPATCH_AGENT_TEMPLATES");
+        // exe_dir/config/cli-templates.toml normally won't exist for cargo-test binaries;
+        // CARGO_MANIFEST_DIR/config/cli-templates.toml DOES exist in this repo, so
+        // resolve_templates_path() will short-circuit there. We therefore validate the
+        // fallback by checking find_first_existing(platform_fallback_candidates()) directly.
+        let got = super::find_first_existing(&super::platform_fallback_candidates())
+            .expect("expected fallback hit");
+        assert_eq!(got, target);
+    }
+
+    #[test]
+    fn resolve_templates_path_error_lists_paths() {
+        let _lock = ENV_MUTEX.lock().unwrap();
+        env::remove_var("DISPATCH_AGENT_TEMPLATES");
+        // We cannot force exe_dir and CARGO_MANIFEST_DIR misses without filesystem
+        // gymnastics; instead, exercise the error formatter directly.
+        let msg = super::format_not_found_error(&[
+            std::path::PathBuf::from("/tmp/a/cli-templates.toml"),
+            std::path::PathBuf::from("/tmp/b/cli-templates.toml"),
+        ]);
+        assert!(msg.contains("/tmp/a/cli-templates.toml"));
+        assert!(msg.contains("/tmp/b/cli-templates.toml"));
+        assert!(msg.contains("DISPATCH_AGENT_TEMPLATES"));
     }
 
     #[cfg(windows)]
