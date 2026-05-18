@@ -26,7 +26,13 @@ fn platform_fallback_candidates() -> Vec<std::path::PathBuf> {
     let mut out = Vec::new();
     if let Some(p) = candidate_from_env(
         "USERPROFILE",
-        &[".wenget", "apps", "dispatch-agent", "config", "cli-templates.toml"],
+        &[
+            ".wenget",
+            "apps",
+            "dispatch-agent",
+            "config",
+            "cli-templates.toml",
+        ],
     ) {
         out.push(p);
     }
@@ -38,7 +44,13 @@ fn platform_fallback_candidates() -> Vec<std::path::PathBuf> {
     }
     if let Some(p) = candidate_from_env(
         "ProgramW6432",
-        &["wenget", "app", "dispatch-agent", "config", "cli-templates.toml"],
+        &[
+            "wenget",
+            "app",
+            "dispatch-agent",
+            "config",
+            "cli-templates.toml",
+        ],
     ) {
         out.push(p);
     }
@@ -57,14 +69,18 @@ fn platform_fallback_candidates() -> Vec<std::path::PathBuf> {
     let mut out = Vec::new();
     if let Some(p) = candidate_from_env(
         "HOME",
-        &[".wenget", "apps", "dispatch-agent", "config", "cli-templates.toml"],
+        &[
+            ".wenget",
+            "apps",
+            "dispatch-agent",
+            "config",
+            "cli-templates.toml",
+        ],
     ) {
         out.push(p);
     }
-    if let Some(p) = candidate_from_env(
-        "HOME",
-        &[".local", "bin", "config", "cli-templates.toml"],
-    ) {
+    if let Some(p) = candidate_from_env("HOME", &[".local", "bin", "config", "cli-templates.toml"])
+    {
         out.push(p);
     }
     out.push(std::path::PathBuf::from(
@@ -251,9 +267,7 @@ mod tests {
         let _lock = ENV_MUTEX.lock().unwrap();
         let dir = tempfile::tempdir().unwrap();
         // Build $HOME/.wenget/apps/dispatch-agent/config/cli-templates.toml
-        let nested = dir
-            .path()
-            .join(".wenget/apps/dispatch-agent/config");
+        let nested = dir.path().join(".wenget/apps/dispatch-agent/config");
         std::fs::create_dir_all(&nested).unwrap();
         let target = nested.join("cli-templates.toml");
         std::fs::write(&target, "[cli]\nprompt_flag = \"-p\"\n").unwrap();
@@ -299,20 +313,34 @@ mod tests {
         let base = dir.path();
 
         let exp_userprofile = base
-            .join(".wenget").join("apps").join("dispatch-agent").join("config").join("cli-templates.toml");
+            .join(".wenget")
+            .join("apps")
+            .join("dispatch-agent")
+            .join("config")
+            .join("cli-templates.toml");
         let exp_localappdata = base
-            .join("Programs").join("dispatch-agent").join("config").join("cli-templates.toml");
+            .join("Programs")
+            .join("dispatch-agent")
+            .join("config")
+            .join("cli-templates.toml");
         let exp_progw6432 = base
-            .join("wenget").join("app").join("dispatch-agent").join("config").join("cli-templates.toml");
+            .join("wenget")
+            .join("app")
+            .join("dispatch-agent")
+            .join("config")
+            .join("cli-templates.toml");
         let exp_progfiles = base
-            .join("gpinstall").join("config").join("cli-templates.toml");
+            .join("gpinstall")
+            .join("config")
+            .join("cli-templates.toml");
 
         assert!(candidates.contains(&exp_userprofile));
         assert!(candidates.contains(&exp_localappdata));
         assert!(candidates.contains(&exp_progw6432));
         assert!(candidates.contains(&exp_progfiles));
 
-        let pos = |needle: &std::path::PathBuf| candidates.iter().position(|c| c == needle).unwrap();
+        let pos =
+            |needle: &std::path::PathBuf| candidates.iter().position(|c| c == needle).unwrap();
         assert!(pos(&exp_userprofile) < pos(&exp_localappdata));
         assert!(pos(&exp_localappdata) < pos(&exp_progw6432));
         assert!(pos(&exp_progw6432) < pos(&exp_progfiles));
@@ -327,7 +355,11 @@ mod tests {
         let _w = EnvGuard::set("ProgramW6432", "");
         let _p = EnvGuard::set("ProgramFiles", "");
         let candidates = super::platform_fallback_candidates();
-        assert!(candidates.is_empty(), "expected empty, got {:?}", candidates);
+        assert!(
+            candidates.is_empty(),
+            "expected empty, got {:?}",
+            candidates
+        );
     }
 
     #[cfg(unix)]
@@ -339,15 +371,12 @@ mod tests {
         let candidates = super::platform_fallback_candidates();
 
         let home = dir.path();
-        let expected_home_wenget = home
-            .join(".wenget/apps/dispatch-agent/config/cli-templates.toml");
+        let expected_home_wenget =
+            home.join(".wenget/apps/dispatch-agent/config/cli-templates.toml");
         let expected_home_local = home.join(".local/bin/config/cli-templates.toml");
-        let expected_opt = std::path::PathBuf::from(
-            "/opt/wenget/apps/dispatch-agent/config/cli-templates.toml",
-        );
-        let expected_usr = std::path::PathBuf::from(
-            "/usr/local/bin/config/cli-templates.toml",
-        );
+        let expected_opt =
+            std::path::PathBuf::from("/opt/wenget/apps/dispatch-agent/config/cli-templates.toml");
+        let expected_usr = std::path::PathBuf::from("/usr/local/bin/config/cli-templates.toml");
 
         assert!(
             candidates.contains(&expected_home_wenget),
@@ -360,7 +389,8 @@ mod tests {
         assert!(candidates.contains(&expected_usr));
 
         // Order: HOME entries come before absolute /opt and /usr/local entries
-        let pos = |needle: &std::path::PathBuf| candidates.iter().position(|c| c == needle).unwrap();
+        let pos =
+            |needle: &std::path::PathBuf| candidates.iter().position(|c| c == needle).unwrap();
         assert!(pos(&expected_home_wenget) < pos(&expected_opt));
         assert!(pos(&expected_home_local) < pos(&expected_opt));
         assert!(pos(&expected_opt) < pos(&expected_usr));
@@ -377,7 +407,9 @@ mod tests {
         assert!(candidates.iter().any(|c| c.starts_with("/usr/local/bin")));
         // No path should contain ".wenget/apps/dispatch-agent" rooted in empty/HOME
         assert!(
-            !candidates.iter().any(|c| c.to_string_lossy().starts_with(".wenget")),
+            !candidates
+                .iter()
+                .any(|c| c.to_string_lossy().starts_with(".wenget")),
             "candidates leaked relative HOME path: {:?}",
             candidates
         );

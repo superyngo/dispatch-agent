@@ -29,7 +29,8 @@ id = "primary"
   cli = "fake-agent"
   model = "default"
   args = []
-"#.to_string();
+"#
+    .to_string();
     fs::write(&path, content).unwrap();
     path
 }
