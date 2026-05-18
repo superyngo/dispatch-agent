@@ -77,6 +77,12 @@ fn platform_fallback_candidates() -> Vec<std::path::PathBuf> {
 }
 
 #[allow(dead_code)]
+#[cfg(not(any(unix, windows)))]
+fn platform_fallback_candidates() -> Vec<std::path::PathBuf> {
+    Vec::new()
+}
+
+#[allow(dead_code)]
 fn candidate_from_env(var: &str, suffix: &[&str]) -> Option<std::path::PathBuf> {
     let base = env::var(var).ok()?;
     if base.is_empty() {
@@ -408,8 +414,19 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         let a = dir.path().join("a.toml");
         let b = dir.path().join("b.toml");
+        std::fs::File::create(&a).unwrap();
         std::fs::File::create(&b).unwrap();
         let result = super::find_first_existing(&[a.clone(), b.clone()]);
+        assert_eq!(result, Some(a), "should return first existing in order");
+    }
+
+    #[test]
+    fn find_first_existing_skips_missing_then_returns_existing() {
+        let dir = tempfile::tempdir().unwrap();
+        let a = dir.path().join("a.toml");
+        let b = dir.path().join("b.toml");
+        std::fs::File::create(&b).unwrap();
+        let result = super::find_first_existing(&[a, b.clone()]);
         assert_eq!(result, Some(b));
     }
 
