@@ -21,6 +21,37 @@ pub fn load_templates() -> anyhow::Result<IndexMap<String, Template>> {
 }
 
 #[allow(dead_code)]
+#[cfg(windows)]
+fn platform_fallback_candidates() -> Vec<std::path::PathBuf> {
+    let mut out = Vec::new();
+    if let Some(p) = candidate_from_env(
+        "USERPROFILE",
+        &[".wenget", "apps", "dispatch-agent", "config", "cli-templates.toml"],
+    ) {
+        out.push(p);
+    }
+    if let Some(p) = candidate_from_env(
+        "LOCALAPPDATA",
+        &["Programs", "dispatch-agent", "config", "cli-templates.toml"],
+    ) {
+        out.push(p);
+    }
+    if let Some(p) = candidate_from_env(
+        "ProgramW6432",
+        &["wenget", "app", "dispatch-agent", "config", "cli-templates.toml"],
+    ) {
+        out.push(p);
+    }
+    if let Some(p) = candidate_from_env(
+        "ProgramFiles",
+        &["gpinstall", "config", "cli-templates.toml"],
+    ) {
+        out.push(p);
+    }
+    out
+}
+
+#[allow(dead_code)]
 #[cfg(unix)]
 fn platform_fallback_candidates() -> Vec<std::path::PathBuf> {
     let mut out = Vec::new();
@@ -183,6 +214,51 @@ mod tests {
         let map = load_templates().unwrap();
         let keys: Vec<&String> = map.keys().collect();
         assert_eq!(keys, vec!["b", "a", "c"]);
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn platform_fallback_candidates_windows_uses_env_vars() {
+        let _lock = ENV_MUTEX.lock().unwrap();
+        let dir = tempfile::tempdir().unwrap();
+        let _u = EnvGuard::set("USERPROFILE", dir.path().to_str().unwrap());
+        let _l = EnvGuard::set("LOCALAPPDATA", dir.path().to_str().unwrap());
+        let _w = EnvGuard::set("ProgramW6432", dir.path().to_str().unwrap());
+        let _p = EnvGuard::set("ProgramFiles", dir.path().to_str().unwrap());
+
+        let candidates = super::platform_fallback_candidates();
+        let base = dir.path();
+
+        let exp_userprofile = base
+            .join(".wenget").join("apps").join("dispatch-agent").join("config").join("cli-templates.toml");
+        let exp_localappdata = base
+            .join("Programs").join("dispatch-agent").join("config").join("cli-templates.toml");
+        let exp_progw6432 = base
+            .join("wenget").join("app").join("dispatch-agent").join("config").join("cli-templates.toml");
+        let exp_progfiles = base
+            .join("gpinstall").join("config").join("cli-templates.toml");
+
+        assert!(candidates.contains(&exp_userprofile));
+        assert!(candidates.contains(&exp_localappdata));
+        assert!(candidates.contains(&exp_progw6432));
+        assert!(candidates.contains(&exp_progfiles));
+
+        let pos = |needle: &std::path::PathBuf| candidates.iter().position(|c| c == needle).unwrap();
+        assert!(pos(&exp_userprofile) < pos(&exp_localappdata));
+        assert!(pos(&exp_localappdata) < pos(&exp_progw6432));
+        assert!(pos(&exp_progw6432) < pos(&exp_progfiles));
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn platform_fallback_candidates_windows_skips_unset_vars() {
+        let _lock = ENV_MUTEX.lock().unwrap();
+        let _u = EnvGuard::set("USERPROFILE", "");
+        let _l = EnvGuard::set("LOCALAPPDATA", "");
+        let _w = EnvGuard::set("ProgramW6432", "");
+        let _p = EnvGuard::set("ProgramFiles", "");
+        let candidates = super::platform_fallback_candidates();
+        assert!(candidates.is_empty(), "expected empty, got {:?}", candidates);
     }
 
     #[cfg(unix)]
