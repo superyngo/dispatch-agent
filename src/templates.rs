@@ -21,6 +21,11 @@ pub fn load_templates() -> anyhow::Result<IndexMap<String, Template>> {
 }
 
 #[allow(dead_code)]
+fn find_first_existing(candidates: &[std::path::PathBuf]) -> Option<std::path::PathBuf> {
+    candidates.iter().find(|p| p.exists()).cloned()
+}
+
+#[allow(dead_code)]
 fn resolve_templates_path() -> anyhow::Result<std::path::PathBuf> {
     if let Ok(p) = env::var("DISPATCH_AGENT_TEMPLATES") {
         return Ok(std::path::PathBuf::from(p));
@@ -140,6 +145,25 @@ mod tests {
         let map = load_templates().unwrap();
         let keys: Vec<&String> = map.keys().collect();
         assert_eq!(keys, vec!["b", "a", "c"]);
+    }
+
+    #[test]
+    fn find_first_existing_returns_first_hit() {
+        let dir = tempfile::tempdir().unwrap();
+        let a = dir.path().join("a.toml");
+        let b = dir.path().join("b.toml");
+        std::fs::File::create(&b).unwrap();
+        let result = super::find_first_existing(&[a.clone(), b.clone()]);
+        assert_eq!(result, Some(b));
+    }
+
+    #[test]
+    fn find_first_existing_returns_none_when_no_match() {
+        let dir = tempfile::tempdir().unwrap();
+        let a = dir.path().join("a.toml");
+        let b = dir.path().join("b.toml");
+        let result = super::find_first_existing(&[a, b]);
+        assert_eq!(result, None);
     }
 
     #[test]
