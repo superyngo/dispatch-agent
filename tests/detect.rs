@@ -10,7 +10,7 @@ fn detect_json() {
         .join("tests/fixtures/inputs/fake-detect-templates.toml");
     fs::copy(&fixtures, &templates).unwrap();
 
-    let out = Command::new(env!("CARGO_BIN_EXE_dispatch-agent"))
+    let out = Command::new(env!("CARGO_BIN_EXE_agd"))
         .arg("detect")
         .env("DISPATCH_AGENT_TEMPLATES", templates)
         .env("HOME", dir.path())

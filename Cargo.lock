@@ -3,6 +3,27 @@
 version = 3
 
 [[package]]
+name = "agd"
+version = "2.0.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "dirs",
+ "fs2",
+ "indexmap",
+ "insta",
+ "libc",
+ "proptest",
+ "serde",
+ "serde_json",
+ "signal-hook",
+ "tempfile",
+ "toml",
+ "wait-timeout",
+ "which",
+]
+
+[[package]]
 name = "anstream"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -167,27 +188,6 @@ dependencies = [
  "option-ext",
  "redox_users",
  "windows-sys 0.48.0",
-]
-
-[[package]]
-name = "dispatch-agent"
-version = "1.1.2"
-dependencies = [
- "anyhow",
- "clap",
- "dirs",
- "fs2",
- "indexmap",
- "insta",
- "libc",
- "proptest",
- "serde",
- "serde_json",
- "signal-hook",
- "tempfile",
- "toml",
- "wait-timeout",
- "which",
 ]
 
 [[package]]

@@ -41,7 +41,7 @@ fn dry_run_happy_path() {
     let templates = write_fake_agent_templates(&dir);
     let config = write_fake_agent_config(&dir);
 
-    let out = Command::new(env!("CARGO_BIN_EXE_dispatch-agent"))
+    let out = Command::new(env!("CARGO_BIN_EXE_agd"))
         .arg("--config")
         .arg(config.to_str().unwrap())
         .arg("dispatch")
@@ -71,7 +71,7 @@ fn dry_run_no_prompt() {
     let templates = write_fake_agent_templates(&dir);
     let config = write_fake_agent_config(&dir);
 
-    let out = Command::new(env!("CARGO_BIN_EXE_dispatch-agent"))
+    let out = Command::new(env!("CARGO_BIN_EXE_agd"))
         .arg("--config")
         .arg(config.to_str().unwrap())
         .arg("dispatch")
@@ -93,7 +93,7 @@ fn list_no_config() {
     let templates_path = write_fake_agent_templates(&dir);
 
     // No --config, HOME set to empty dir so no user config exists
-    let out = Command::new(env!("CARGO_BIN_EXE_dispatch-agent"))
+    let out = Command::new(env!("CARGO_BIN_EXE_agd"))
         .arg("config")
         .arg("list")
         .env("DISPATCH_AGENT_TEMPLATES", &templates_path)
@@ -113,7 +113,7 @@ fn list_with_config() {
     let templates = write_fake_agent_templates(&dir);
     let config = write_fake_agent_config(&dir);
 
-    let out = Command::new(env!("CARGO_BIN_EXE_dispatch-agent"))
+    let out = Command::new(env!("CARGO_BIN_EXE_agd"))
         .arg("--config")
         .arg(config.to_str().unwrap())
         .arg("config")
@@ -141,7 +141,7 @@ fn show_config_no_config() {
     let dir = TempDir::new().unwrap();
     let templates = write_fake_agent_templates(&dir);
 
-    let out = Command::new(env!("CARGO_BIN_EXE_dispatch-agent"))
+    let out = Command::new(env!("CARGO_BIN_EXE_agd"))
         .arg("config")
         .arg("show")
         .env("DISPATCH_AGENT_TEMPLATES", templates)
@@ -166,7 +166,7 @@ fn agent_not_found() {
     let templates = write_fake_agent_templates(&dir);
     let config = write_fake_agent_config(&dir);
 
-    let out = Command::new(env!("CARGO_BIN_EXE_dispatch-agent"))
+    let out = Command::new(env!("CARGO_BIN_EXE_agd"))
         .arg("--config")
         .arg(config.to_str().unwrap())
         .arg("dispatch")
@@ -194,7 +194,7 @@ fn tier_not_found() {
     let templates = write_fake_agent_templates(&dir);
     let config = write_fake_agent_config(&dir);
 
-    let out = Command::new(env!("CARGO_BIN_EXE_dispatch-agent"))
+    let out = Command::new(env!("CARGO_BIN_EXE_agd"))
         .arg("--config")
         .arg(config.to_str().unwrap())
         .arg("dispatch")
@@ -219,7 +219,7 @@ fn tier_not_found() {
 #[test]
 fn recursion_guard() {
     let dir = TempDir::new().unwrap();
-    let out = Command::new(env!("CARGO_BIN_EXE_dispatch-agent"))
+    let out = Command::new(env!("CARGO_BIN_EXE_agd"))
         .arg("dispatch")
         .arg("-p")
         .arg("test")
@@ -240,7 +240,7 @@ fn fake_agent_exit_0() {
     let templates = write_fake_agent_templates(&dir);
     let config = write_fake_agent_config(&dir);
 
-    let out = Command::new(env!("CARGO_BIN_EXE_dispatch-agent"))
+    let out = Command::new(env!("CARGO_BIN_EXE_agd"))
         .arg("--config")
         .arg(config.to_str().unwrap())
         .arg("dispatch")
@@ -262,7 +262,7 @@ fn fake_agent_exit_nonzero() {
     let templates = write_fake_agent_templates(&dir);
     let config = write_fake_agent_config(&dir);
 
-    let out = Command::new(env!("CARGO_BIN_EXE_dispatch-agent"))
+    let out = Command::new(env!("CARGO_BIN_EXE_agd"))
         .arg("--config")
         .arg(config.to_str().unwrap())
         .arg("dispatch")

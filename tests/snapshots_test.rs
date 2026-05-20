@@ -1,5 +1,5 @@
-use dispatch_agent::dispatch::display::{format_list, format_list_detect, format_show_config};
-use dispatch_agent::types::{Agent, Config, DetectInfo, EnvEntry, Tier};
+use agd::dispatch::display::{format_list, format_list_detect, format_show_config};
+use agd::types::{Agent, Config, DetectInfo, EnvEntry, Tier};
 use indexmap::IndexMap;
 use std::path::Path;
 

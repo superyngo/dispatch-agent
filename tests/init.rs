@@ -11,7 +11,7 @@ fn canonical_init() {
 
     let dir = TempDir::new().unwrap();
 
-    let mut child = Command::new(env!("CARGO_BIN_EXE_dispatch-agent"))
+    let mut child = Command::new(env!("CARGO_BIN_EXE_agd"))
         .arg("init")
         .env("HOME", dir.path())
         .current_dir(dir.path())
@@ -65,7 +65,7 @@ fn canonical_init() {
 #[test]
 fn invalid_json() {
     let dir = TempDir::new().unwrap();
-    let mut child = Command::new(env!("CARGO_BIN_EXE_dispatch-agent"))
+    let mut child = Command::new(env!("CARGO_BIN_EXE_agd"))
         .arg("init")
         .env("HOME", dir.path())
         .stdin(std::process::Stdio::piped())
@@ -96,7 +96,7 @@ fn hint_in_stderr() {
 
     let dir = TempDir::new().unwrap();
 
-    let mut child = Command::new(env!("CARGO_BIN_EXE_dispatch-agent"))
+    let mut child = Command::new(env!("CARGO_BIN_EXE_agd"))
         .arg("init")
         .env("HOME", dir.path())
         .current_dir(dir.path())

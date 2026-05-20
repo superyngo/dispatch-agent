@@ -4,7 +4,7 @@ use tempfile::TempDir;
 #[test]
 fn config_path_no_config() {
     let dir = TempDir::new().unwrap();
-    let out = Command::new(env!("CARGO_BIN_EXE_dispatch-agent"))
+    let out = Command::new(env!("CARGO_BIN_EXE_agd"))
         .arg("config")
         .arg("path")
         .env("HOME", dir.path())
@@ -32,7 +32,7 @@ fn config_path_no_config() {
 #[test]
 fn config_show_no_config() {
     let dir = TempDir::new().unwrap();
-    let out = Command::new(env!("CARGO_BIN_EXE_dispatch-agent"))
+    let out = Command::new(env!("CARGO_BIN_EXE_agd"))
         .arg("config")
         .arg("show")
         .env("HOME", dir.path())
