@@ -62,10 +62,7 @@ pub fn build_env(agent: &Agent, current_depth: i64) -> HashMap<String, String> {
         }
     }
 
-    map.insert(
-        "AGD_DEPTH".to_string(),
-        (current_depth + 1).to_string(),
-    );
+    map.insert("AGD_DEPTH".to_string(), (current_depth + 1).to_string());
 
     map
 }
@@ -150,9 +147,6 @@ mod tests {
         );
 
         // Depth bumped
-        assert_eq!(
-            env.get("AGD_DEPTH").map(String::as_str),
-            Some("4")
-        );
+        assert_eq!(env.get("AGD_DEPTH").map(String::as_str), Some("4"));
     }
 }

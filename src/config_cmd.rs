@@ -54,10 +54,7 @@ fn cmd_config_path(config_arg: Option<&Path>) -> anyhow::Result<()> {
     // No config found — print helpful hint that matches spec
     eprintln!("error: no config file found");
     eprintln!("hint: default locations searched:");
-    eprintln!(
-        "  {}/.config/agd.toml (project)",
-        find_git_root().display()
-    );
+    eprintln!("  {}/.config/agd.toml (project)", find_git_root().display());
     if let Ok(home_cfg) = crate::fsutil::expand_tilde("~/.config/agd.toml") {
         eprintln!("  {} (user)", home_cfg.display());
     } else {

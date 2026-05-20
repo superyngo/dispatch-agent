@@ -33,10 +33,7 @@ fn current_depth() -> i64 {
         Ok(val) => match val.trim().parse::<i64>() {
             Ok(d) => d,
             Err(_) => {
-                eprintln!(
-                    "error: invalid AGD_DEPTH value '{}': expected integer",
-                    val
-                );
+                eprintln!("error: invalid AGD_DEPTH value '{}': expected integer", val);
                 std::process::exit(1);
             }
         },
@@ -88,7 +85,14 @@ pub fn cmd_dispatch(args: &DispatchArgs, config_path: Option<&Path>) -> anyhow::
 
     // --dry-run mode
     if args.dry_run {
-        return dry_run(&config, &templates, &templates_path, &prompt, &args.tier, &args.agent);
+        return dry_run(
+            &config,
+            &templates,
+            &templates_path,
+            &prompt,
+            &args.tier,
+            &args.agent,
+        );
     }
 
     // Setup signal watcher (once at start of dispatch)
@@ -100,10 +104,26 @@ pub fn cmd_dispatch(args: &DispatchArgs, config_path: Option<&Path>) -> anyhow::
     let _watcher = process::windows::start_signal_watcher(state.clone(), shutdown.clone());
 
     let result = if let Some(ref agent_id) = args.agent {
-        dispatch_single(&config, &templates, &templates_path, &prompt, agent_id, args, depth, &state)
+        dispatch_single(
+            &config,
+            &templates,
+            &templates_path,
+            &prompt,
+            agent_id,
+            args,
+            depth,
+            &state,
+        )
     } else {
         dispatch_tiers(
-            &config, &templates, &templates_path, &prompt, &args.tier, args, depth, &state,
+            &config,
+            &templates,
+            &templates_path,
+            &prompt,
+            &args.tier,
+            args,
+            depth,
+            &state,
         )
     };
 
@@ -136,7 +156,9 @@ fn dry_run(
             None => {
                 eprintln!(
                     "warning: template '{}' for agent '{}' not found in {}",
-                    tmpl_name, agent.id, templates_path.display()
+                    tmpl_name,
+                    agent.id,
+                    templates_path.display()
                 );
                 continue;
             }
@@ -144,7 +166,9 @@ fn dry_run(
         if !template.verified {
             eprintln!(
                 "warning: agent '{}' uses unverified template '{}', skipping ({})",
-                agent.id, tmpl_name, templates_path.display()
+                agent.id,
+                tmpl_name,
+                templates_path.display()
             );
             continue;
         }
@@ -156,6 +180,7 @@ fn dry_run(
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 fn dispatch_single(
     config: &Config,
     templates: &IndexMap<String, Template>,
@@ -188,7 +213,9 @@ fn dispatch_single(
         None => {
             eprintln!(
                 "error: template '{}' for agent '{}' not found in {}",
-                tmpl_name, agent.id, templates_path.display()
+                tmpl_name,
+                agent.id,
+                templates_path.display()
             );
             std::process::exit(1);
         }
@@ -197,7 +224,9 @@ fn dispatch_single(
     if !template.verified {
         eprintln!(
             "error: agent '{}' uses unverified template '{}'; cannot dispatch ({})",
-            agent.id, tmpl_name, templates_path.display()
+            agent.id,
+            tmpl_name,
+            templates_path.display()
         );
         std::process::exit(1);
     }
@@ -243,6 +272,7 @@ fn dispatch_single(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn dispatch_tiers(
     config: &Config,
     templates: &IndexMap<String, Template>,
@@ -281,7 +311,9 @@ fn dispatch_tiers(
                 None => {
                     eprintln!(
                         "warning: template '{}' for agent '{}' not found in {}",
-                        tmpl_name, agent.id, templates_path.display()
+                        tmpl_name,
+                        agent.id,
+                        templates_path.display()
                     );
                     continue;
                 }
@@ -290,7 +322,9 @@ fn dispatch_tiers(
             if !template.verified {
                 eprintln!(
                     "warning: agent '{}' uses unverified template '{}', skipping ({})",
-                    agent.id, tmpl_name, templates_path.display()
+                    agent.id,
+                    tmpl_name,
+                    templates_path.display()
                 );
                 continue;
             }

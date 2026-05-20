@@ -26,13 +26,7 @@ fn platform_fallback_candidates() -> Vec<std::path::PathBuf> {
     let mut out = Vec::new();
     if let Some(p) = candidate_from_env(
         "USERPROFILE",
-        &[
-            ".wenget",
-            "apps",
-            "agd",
-            "config",
-            "cli-templates.toml",
-        ],
+        &[".wenget", "apps", "agd", "config", "cli-templates.toml"],
     ) {
         out.push(p);
     }
@@ -44,13 +38,7 @@ fn platform_fallback_candidates() -> Vec<std::path::PathBuf> {
     }
     if let Some(p) = candidate_from_env(
         "ProgramW6432",
-        &[
-            "wenget",
-            "app",
-            "agd",
-            "config",
-            "cli-templates.toml",
-        ],
+        &["wenget", "app", "agd", "config", "cli-templates.toml"],
     ) {
         out.push(p);
     }
@@ -69,13 +57,7 @@ fn platform_fallback_candidates() -> Vec<std::path::PathBuf> {
     let mut out = Vec::new();
     if let Some(p) = candidate_from_env(
         "HOME",
-        &[
-            ".wenget",
-            "apps",
-            "agd",
-            "config",
-            "cli-templates.toml",
-        ],
+        &[".wenget", "apps", "agd", "config", "cli-templates.toml"],
     ) {
         out.push(p);
     }
@@ -152,9 +134,8 @@ fn resolve_templates_path() -> anyhow::Result<std::path::PathBuf> {
 
 #[allow(dead_code)]
 fn format_not_found_error(checked: &[std::path::PathBuf]) -> String {
-    let mut s = String::from(
-        "cli-templates.toml not found. Set AGD_TEMPLATES to override. Searched:\n",
-    );
+    let mut s =
+        String::from("cli-templates.toml not found. Set AGD_TEMPLATES to override. Searched:\n");
     for p in checked {
         s.push_str("  ");
         s.push_str(&p.display().to_string());
@@ -371,8 +352,7 @@ mod tests {
         let candidates = super::platform_fallback_candidates();
 
         let home = dir.path();
-        let expected_home_wenget =
-            home.join(".wenget/apps/agd/config/cli-templates.toml");
+        let expected_home_wenget = home.join(".wenget/apps/agd/config/cli-templates.toml");
         let expected_home_local = home.join(".local/bin/config/cli-templates.toml");
         let expected_opt =
             std::path::PathBuf::from("/opt/wenget/apps/agd/config/cli-templates.toml");
@@ -474,10 +454,7 @@ mod tests {
     #[test]
     fn missing_file_error() {
         let _lock = ENV_MUTEX.lock().unwrap();
-        let _guard = EnvGuard::set(
-            "AGD_TEMPLATES",
-            "/nonexistent/path/cli-templates.toml",
-        );
+        let _guard = EnvGuard::set("AGD_TEMPLATES", "/nonexistent/path/cli-templates.toml");
         let result = load_templates();
         assert!(result.is_err());
         let msg = result.unwrap_err().to_string();
