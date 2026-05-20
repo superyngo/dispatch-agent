@@ -38,7 +38,8 @@ The following table is the complete identifier replacement set. Anything not lis
 | Cache directory | `<cache_dir>/dispatch-agent/rr-state.json` | `<cache_dir>/agd/rr-state.json` |
 | User config file | `~/.config/dispatch-agent.toml` | `~/.config/agd.toml` |
 | Project config file | `<git-root>/.config/dispatch-agent.toml` | `<git-root>/.config/agd.toml` |
-| Fallback install paths in `src/templates.rs` (9 occurrences, both `unix` and `windows` `cfg` branches) | every `dispatch-agent` path segment | `agd` |
+| Fallback install paths in `src/templates.rs` (both `unix` and `windows` `cfg` branches, ~13 occurrences across path-segment array literals and `/opt/.../...` / `/usr/local/.../...` string literals) | every `dispatch-agent` path segment | `agd` |
+| Test fixture strings in `src/detect.rs:123,166` (`"dispatch-agent-fake-nonexistent-xyz"` synthetic binary name used to assert detect-miss behavior) | `dispatch-agent-fake-nonexistent-xyz` | `agd-fake-nonexistent-xyz` |
 | GitHub repository | `superyngo/dispatch-agent` | `superyngo/agd` |
 | `README.md` `APP_NAME` and `REPO` install-script values | `dispatch-agent` / `superyngo/dispatch-agent` | `agd` / `superyngo/agd` |
 | User-facing strings in `src/init.rs` (`INIT_USAGE`, hint messages, examples) | `dispatch-agent` | `agd` |
@@ -101,7 +102,7 @@ they cannot tell *which* `cli-templates.toml` was loaded — the resolver checks
    | `mod.rs:280` (dispatch_tiers, template not found) | `warning: template '{tmpl}' for agent '{agent}' not found in {path}` |
    | `mod.rs:289` (dispatch_tiers, unverified template) | `warning: agent '{agent}' uses unverified template '{tmpl}', skipping ({path})` |
 
-4. `src/detect.rs` — verify whether it surfaces template-related warnings. If it does, update them with the same path-suffixing convention. (At time of writing, `detect.rs` reads templates only to enumerate names; no template-resolution warnings live there. If implementation reveals otherwise, fold them in.)
+4. `src/detect.rs` — at time of writing, `detect.rs` reads templates only to enumerate names and does not emit template-resolution warnings, so it requires no changes for §5. (Its test fixture strings are still renamed per §3.)
 
 ### 5.3 Tests
 
