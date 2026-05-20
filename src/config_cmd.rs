@@ -55,13 +55,13 @@ fn cmd_config_path(config_arg: Option<&Path>) -> anyhow::Result<()> {
     eprintln!("error: no config file found");
     eprintln!("hint: default locations searched:");
     eprintln!(
-        "  {}/.config/dispatch-agent.toml (project)",
+        "  {}/.config/agd.toml (project)",
         find_git_root().display()
     );
-    if let Ok(home_cfg) = crate::fsutil::expand_tilde("~/.config/dispatch-agent.toml") {
+    if let Ok(home_cfg) = crate::fsutil::expand_tilde("~/.config/agd.toml") {
         eprintln!("  {} (user)", home_cfg.display());
     } else {
-        eprintln!("  ~/.config/dispatch-agent.toml (user)");
+        eprintln!("  ~/.config/agd.toml (user)");
     }
 
     Err(anyhow!("no config file found"))

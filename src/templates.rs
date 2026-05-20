@@ -29,7 +29,7 @@ fn platform_fallback_candidates() -> Vec<std::path::PathBuf> {
         &[
             ".wenget",
             "apps",
-            "dispatch-agent",
+            "agd",
             "config",
             "cli-templates.toml",
         ],
@@ -38,7 +38,7 @@ fn platform_fallback_candidates() -> Vec<std::path::PathBuf> {
     }
     if let Some(p) = candidate_from_env(
         "LOCALAPPDATA",
-        &["Programs", "dispatch-agent", "config", "cli-templates.toml"],
+        &["Programs", "agd", "config", "cli-templates.toml"],
     ) {
         out.push(p);
     }
@@ -47,7 +47,7 @@ fn platform_fallback_candidates() -> Vec<std::path::PathBuf> {
         &[
             "wenget",
             "app",
-            "dispatch-agent",
+            "agd",
             "config",
             "cli-templates.toml",
         ],
@@ -72,7 +72,7 @@ fn platform_fallback_candidates() -> Vec<std::path::PathBuf> {
         &[
             ".wenget",
             "apps",
-            "dispatch-agent",
+            "agd",
             "config",
             "cli-templates.toml",
         ],
@@ -84,7 +84,7 @@ fn platform_fallback_candidates() -> Vec<std::path::PathBuf> {
         out.push(p);
     }
     out.push(std::path::PathBuf::from(
-        "/opt/wenget/apps/dispatch-agent/config/cli-templates.toml",
+        "/opt/wenget/apps/agd/config/cli-templates.toml",
     ));
     out.push(std::path::PathBuf::from(
         "/usr/local/bin/config/cli-templates.toml",
@@ -266,8 +266,8 @@ mod tests {
     fn resolve_templates_path_uses_unix_fallback() {
         let _lock = ENV_MUTEX.lock().unwrap();
         let dir = tempfile::tempdir().unwrap();
-        // Build $HOME/.wenget/apps/dispatch-agent/config/cli-templates.toml
-        let nested = dir.path().join(".wenget/apps/dispatch-agent/config");
+        // Build $HOME/.wenget/apps/agd/config/cli-templates.toml
+        let nested = dir.path().join(".wenget/apps/agd/config");
         std::fs::create_dir_all(&nested).unwrap();
         let target = nested.join("cli-templates.toml");
         std::fs::write(&target, "[cli]\nprompt_flag = \"-p\"\n").unwrap();
@@ -315,18 +315,18 @@ mod tests {
         let exp_userprofile = base
             .join(".wenget")
             .join("apps")
-            .join("dispatch-agent")
+            .join("agd")
             .join("config")
             .join("cli-templates.toml");
         let exp_localappdata = base
             .join("Programs")
-            .join("dispatch-agent")
+            .join("agd")
             .join("config")
             .join("cli-templates.toml");
         let exp_progw6432 = base
             .join("wenget")
             .join("app")
-            .join("dispatch-agent")
+            .join("agd")
             .join("config")
             .join("cli-templates.toml");
         let exp_progfiles = base
@@ -372,10 +372,10 @@ mod tests {
 
         let home = dir.path();
         let expected_home_wenget =
-            home.join(".wenget/apps/dispatch-agent/config/cli-templates.toml");
+            home.join(".wenget/apps/agd/config/cli-templates.toml");
         let expected_home_local = home.join(".local/bin/config/cli-templates.toml");
         let expected_opt =
-            std::path::PathBuf::from("/opt/wenget/apps/dispatch-agent/config/cli-templates.toml");
+            std::path::PathBuf::from("/opt/wenget/apps/agd/config/cli-templates.toml");
         let expected_usr = std::path::PathBuf::from("/usr/local/bin/config/cli-templates.toml");
 
         assert!(
@@ -405,7 +405,7 @@ mod tests {
         // Absolute paths still present
         assert!(candidates.iter().any(|c| c.starts_with("/opt/wenget")));
         assert!(candidates.iter().any(|c| c.starts_with("/usr/local/bin")));
-        // No path should contain ".wenget/apps/dispatch-agent" rooted in empty/HOME
+        // No path should contain ".wenget/apps/agd" rooted in empty/HOME
         assert!(
             !candidates
                 .iter()

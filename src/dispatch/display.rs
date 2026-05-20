@@ -116,7 +116,7 @@ pub fn format_list_detect(detect: &IndexMap<String, DetectInfo>) -> String {
 fn path_label(path: &Path) -> &'static str {
     let home = dirs::home_dir().unwrap_or_default();
     let path_str = path.to_string_lossy();
-    if path_str.contains(".config/dispatch-agent.toml") && path.starts_with(&home) {
+    if path_str.contains(".config/agd.toml") && path.starts_with(&home) {
         return "(user)";
     }
     let mut dir = path.parent();

@@ -26,13 +26,13 @@ pub fn find_config(arg: Option<&Path>) -> Option<PathBuf> {
     }
 
     // 2. Project-level config under git root
-    let project = find_git_root().join(".config/dispatch-agent.toml");
+    let project = find_git_root().join(".config/agd.toml");
     if project.exists() {
         return Some(project);
     }
 
     // 3. User-level config
-    if let Ok(path) = expand_tilde("~/.config/dispatch-agent.toml") {
+    if let Ok(path) = expand_tilde("~/.config/agd.toml") {
         if path.exists() {
             return Some(path);
         }
@@ -92,12 +92,12 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         let cfg_dir = dir.path().join(".config");
         fs::create_dir_all(&cfg_dir).unwrap();
-        let project_cfg = cfg_dir.join("dispatch-agent.toml");
+        let project_cfg = cfg_dir.join("agd.toml");
         fs::write(&project_cfg, "version = 1\n[[tiers]]\nid=\"x\"\n").unwrap();
 
         // When we're inside the tempdir (as git root), project config should be found
         let git_root = find_git_root();
-        let project_path = git_root.join(".config/dispatch-agent.toml");
+        let project_path = git_root.join(".config/agd.toml");
 
         // The test verifies the priority logic: if project config exists, it's returned
         let result = find_config(None);

@@ -32,8 +32,8 @@ fn canonical_init() {
         String::from_utf8_lossy(&out.stderr)
     );
 
-    // File should be created at ~/<HOME>/.config/dispatch-agent.toml
-    let config_path = dir.path().join(".config").join("dispatch-agent.toml");
+    // File should be created at ~/<HOME>/.config/agd.toml
+    let config_path = dir.path().join(".config").join("agd.toml");
     assert!(
         config_path.exists(),
         "config file not created at {}",

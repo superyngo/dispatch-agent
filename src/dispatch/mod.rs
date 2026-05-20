@@ -24,7 +24,7 @@ use crate::cli::DispatchArgs;
 fn rr_state_path() -> PathBuf {
     dirs::cache_dir()
         .unwrap_or_else(|| dirs::home_dir().unwrap_or_else(|| PathBuf::from(".")))
-        .join("dispatch-agent")
+        .join("agd")
         .join("rr-state.json")
 }
 
@@ -422,7 +422,7 @@ mod tests {
     #[test]
     fn rr_state_path_ends_correctly() {
         let path = rr_state_path();
-        assert!(path.ends_with("dispatch-agent/rr-state.json"));
+        assert!(path.ends_with("agd/rr-state.json"));
     }
 
     #[test]

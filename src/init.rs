@@ -45,8 +45,8 @@ struct InitAgent {
 
 fn parse_save_location(s: &str) -> anyhow::Result<PathBuf> {
     match s {
-        "user" => expand_tilde("~/.config/dispatch-agent.toml"),
-        "project" => Ok(find_git_root().join(".config/dispatch-agent.toml")),
+        "user" => expand_tilde("~/.config/agd.toml"),
+        "project" => Ok(find_git_root().join(".config/agd.toml")),
         other => bail!("error: invalid save_location '{}'", other),
     }
 }
@@ -180,7 +180,7 @@ Example JSON:
 }
 
 Fields:
-  save_location  "user" (~/.config/dispatch-agent.toml) or "project" (<git-root>/.config/...)
+  save_location  "user" (~/.config/agd.toml) or "project" (<git-root>/.config/...)
   tier_order     ordered list of tier ids
   agents[]       { id, cli, tier, model?, args?, template?, env? }
   env entry      type=file|env|source with appropriate fields
@@ -243,7 +243,7 @@ mod tests {
 
     fn run_test(json: &str) -> anyhow::Result<tempfile::TempDir> {
         let dir = tempfile::tempdir().unwrap();
-        let dest = dir.path().join("dispatch-agent.toml");
+        let dest = dir.path().join("agd.toml");
         run_init_to(json.as_bytes(), Some(&dest))?;
         assert!(dest.exists(), "config file should exist at {:?}", dest);
         Ok(dir)
@@ -276,7 +276,7 @@ mod tests {
         );
 
         let dir = run_test(&json).unwrap();
-        let dest = dir.path().join("dispatch-agent.toml");
+        let dest = dir.path().join("agd.toml");
         let content = fs::read_to_string(&dest).unwrap();
         let config: Config = toml::from_str(&content).unwrap();
         assert_eq!(config.version, Some(1));
@@ -361,7 +361,7 @@ mod tests {
             &serde_json::json!([{"id":"a","cli":"claude","tier":"primary"}]).to_string(),
         );
         let dir = run_test(&json).unwrap();
-        let dest = dir.path().join("dispatch-agent.toml");
+        let dest = dir.path().join("agd.toml");
         let mode = fs::metadata(&dest).unwrap().permissions().mode();
         assert_eq!(mode & 0o777, 0o600);
     }
@@ -437,7 +437,7 @@ mod tests {
             .to_string(),
         );
         let dir = run_test(&json).unwrap();
-        let dest = dir.path().join("dispatch-agent.toml");
+        let dest = dir.path().join("agd.toml");
         let content = fs::read_to_string(&dest).unwrap();
         let config: Config = toml::from_str(&content).unwrap();
         assert_eq!(
@@ -459,7 +459,7 @@ mod tests {
             .to_string(),
         );
         let dir = run_test(&json).unwrap();
-        let dest = dir.path().join("dispatch-agent.toml");
+        let dest = dir.path().join("agd.toml");
         let content = fs::read_to_string(&dest).unwrap();
         let config: Config = toml::from_str(&content).unwrap();
         assert_eq!(config.tiers[0].agents[0].model, None);
@@ -478,7 +478,7 @@ mod tests {
             .to_string(),
         );
         let dir = run_test(&json).unwrap();
-        let dest = dir.path().join("dispatch-agent.toml");
+        let dest = dir.path().join("agd.toml");
         let content = fs::read_to_string(&dest).unwrap();
         let config: Config = toml::from_str(&content).unwrap();
         assert_eq!(config.tiers[0].agents.len(), 2);
