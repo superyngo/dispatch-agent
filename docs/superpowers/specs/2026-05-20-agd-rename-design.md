@@ -33,8 +33,8 @@ The following table is the complete identifier replacement set. Anything not lis
 | Cargo `[[bin]].name` (main binary) | `dispatch-agent` | `agd` |
 | Cargo `[[bin]].name` (test helper) | `fake_agent` | `fake_agent` *(unchanged)* |
 | Clap `#[command(name = ...)]` | `"dispatch-agent"` | `"agd"` |
-| Env var (template override) | `DISPATCH_AGENT_TEMPLATES` | `AGD_TEMPLATES` |
-| Env var (re-entry depth guard) | `DISPATCH_AGENT_DEPTH` | `AGD_DEPTH` |
+| Env var (template override) — appears in `src/templates.rs:123` (read), `src/templates.rs:156` (`format_not_found_error` user message), `src/templates.rs:211,222,235,246,258,277,290,299,478` (tests), `src/detect.rs:107` (test), `tests/detect.rs:15`, `tests/dispatch.rs:51,79` | `DISPATCH_AGENT_TEMPLATES` | `AGD_TEMPLATES` |
+| Env var (re-entry depth guard) — appears in `src/dispatch/mod.rs:32` (`env::var` read), `src/dispatch/mod.rs:37` (error message string `"invalid DISPATCH_AGENT_DEPTH value"`), `src/env.rs:55` (doc comment), `src/env.rs:66,154` (env-map literal and test read) | `DISPATCH_AGENT_DEPTH` | `AGD_DEPTH` |
 | Cache directory | `<cache_dir>/dispatch-agent/rr-state.json` | `<cache_dir>/agd/rr-state.json` |
 | User config file | `~/.config/dispatch-agent.toml` | `~/.config/agd.toml` |
 | Project config file | `<git-root>/.config/dispatch-agent.toml` | `<git-root>/.config/agd.toml` |
@@ -45,6 +45,8 @@ The following table is the complete identifier replacement set. Anything not lis
 | Path-label match and test fixtures in `src/dispatch/display.rs:119,155,168` (display logic checks `.contains(".config/dispatch-agent.toml")`; tests assert against fake CLI name and `[✗] missing (...)` line) | `dispatch-agent` / `dispatch-agent-fake-nonexistent-cli-xyz` | `agd` / `agd-fake-nonexistent-cli-xyz` |
 | Test code in `src/config.rs:95,100` (test joins `dispatch-agent.toml` to fixture dirs) | `dispatch-agent.toml` | `agd.toml` |
 | Test fixtures in `tests/snapshots_test.rs:25,48,95` (`"dispatch-agent-nonexistent-xyz"` and `/tmp/dispatch-agent-test.toml`) | `dispatch-agent*` | `agd*` |
+| `env!("CARGO_BIN_EXE_dispatch-agent")` references across `tests/init.rs:14,68,99`, `tests/detect.rs:13`, `tests/config_cmd.rs:7,35`, `tests/dispatch.rs:44,74,96,116,144,169,197,222,243,265` (16 occurrences). The macro key derives from the Cargo `[[bin]].name`, so after that change every such literal must be rewritten. | `CARGO_BIN_EXE_dispatch-agent` | `CARGO_BIN_EXE_agd` |
+| Top-of-file documentation comment block in `config/cli-templates.toml:2-10` (mentions of `dispatch-agent`, `~/.config/dispatch-agent.toml`, `<git-root>/.config/dispatch-agent.toml`, `dispatch-agent init`, `dispatch-agent config edit`) | `dispatch-agent` / `dispatch-agent.toml` | `agd` / `agd.toml` |
 | Crate-name imports in tests (`use dispatch_agent::...`) | follow automatically from the Cargo `package.name` change — Rust crate name derives from package name with `-` → `_` | `use agd::...` |
 | GitHub repository | `superyngo/dispatch-agent` | `superyngo/agd` |
 | `README.md` `APP_NAME` and `REPO` install-script values | `dispatch-agent` / `superyngo/dispatch-agent` | `agd` / `superyngo/agd` |
